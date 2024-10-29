@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Salaison Calculator</title>
+    <meta name="theme-color" content="#000000">
+    <style>
+        :root {
+            --primary-color: #6366F1;
+            --background: #000000;
+            --card-bg: #1A1A1A;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A1A1AA;
+            --accent: #818CF8;
+            --spacing: 16px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: var(--background);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: var(--spacing);
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding-bottom: 20px;
+        }
+
+        .header {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--primary-color);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .weight-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .weight-input {
+            width: 140px;
+            height: 60px;
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            border-radius: 15px;
+            color: var(--text-primary);
+            font-size: 32px;
+            font-weight: 600;
+            text-align: center;
+            padding: 0 10px;
+        }
+
+        .weight-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .btn {
+            border: none;
+            color: white;
+            background: var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            height: 44px;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .unit {
+            color: var(--text-secondary);
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .fine-controls {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .btn-small {
+            font-size: 14px;
+            padding: 6px 12px;
+            height: 36px;
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary-color);
+        }
+
+        .salt-slider {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--primary-color);
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid var(--background);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+        }
+
+        .salt-value {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 600;
+            margin-top: 12px;
+            color: var(--text-primary);
+        }
+
+        .result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-radius: 12px;
+            background: rgba(99, 102, 241, 0.1);
+            margin-bottom: 12px;
+        }
+
+        .result:last-child {
+            margin-bottom: 0;
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+
+        .result-value {
+            color: var(--text-primary);
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* Suppression des flèches du input number */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">Calculateur de Salaison</div>
+
+        <div class="card">
+            <div class="section-title">Poids de l'aliment</div>
+            <div class="weight-controls">
+                <button class="btn" onclick="adjustWeight(-100)">-</button>
+                <input type="number" class="weight-input" id="weight" value="0" min="0">
+                <button class="btn" onclick="adjustWeight(100)">+</button>
+                <span class="unit">g</span>
+            </div>
+            <div class="fine-controls">
+                <button class="btn btn-small" onclick="adjustWeight(-10)">-10g</button>
+                <button class="btn btn-small" onclick="adjustWeight(-1)">-1g</button>
+                <button class="btn btn-small" onclick="adjustWeight(1)">+1g</button>
+                <button class="btn btn-small" onclick="adjustWeight(10)">+10g</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Sel</div>
+            <div class="salt-slider">
+                <input type="range" id="salt" min="0" max="10" step="0.1" value="4.5">
+            </div>
+            <div class="salt-value" id="salt-percentage">4.5 %</div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Résultats</div>
+            <div class="result">
+                <span class="result-label">Sel</span>
+                <span class="result-value" id="salt-result">0 g</span>
+            </div>
+            <div class="result">
+                <span class="result-label">Sucre (2%)</span>
+                <span class="result-value" id="sugar-result">0 g</span>
+            </div>
+            <div class="result">
+                <span class="result-label">Poivre (1%)</span>
+                <span class="result-value" id="pepper-result">0 g</span>
+            </div>
+            <div class="result">
+                <span class="result-label">Épices (0,5%)</span>
+                <span class="result-value" id="spices-result">0 g</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const weightInput = document.getElementById('weight');
+        const saltSlider = document.getElementById('salt');
+        const saltPercentage = document.getElementById('salt-percentage');
+        const saltResult = document.getElementById('salt-result');
+        const sugarResult = document.getElementById('sugar-result');
+        const pepperResult = document.getElementById('pepper-result');
+        const spicesResult = document.getElementById('spices-result');
+
+        function adjustWeight(amount) {
+            let currentWeight = parseInt(weightInput.value) || 0;
+            currentWeight = Math.max(0, currentWeight + amount);
+            weightInput.value = currentWeight;
+            updateCalculations();
+            weightInput.blur();
+        }
+
+        function updateCalculations() {
+            const weight = parseFloat(weightInput.value) || 0;
+            const saltPercent = parseFloat(saltSlider.value);
+
+            saltPercentage.textContent = `${saltPercent} %`;
+
+            // Calcul des quantités
+            const saltQuantity = (weight * saltPercent / 100).toFixed(1);
+            const sugarQuantity = (weight * 0.02).toFixed(1);
+            const pepperQuantity = (weight * 0.01).toFixed(1);
+            const spicesQuantity = (weight * 0.005).toFixed(1);
+
+            saltResult.textContent = `${saltQuantity} g`;
+            sugarResult.textContent = `${sugarQuantity} g`;
+            pepperResult.textContent = `${pepperQuantity} g`;
+            spicesResult.textContent = `${spicesQuantity} g`;
+
+            localStorage.setItem('lastWeight', weight);
+            localStorage.setItem('lastSaltPercent', saltPercent);
+        }
+
+        // Charger les dernières valeurs
+        window.addEventListener('load', () => {
+            const lastWeight = localStorage.getItem('lastWeight');
+            const lastSaltPercent = localStorage.getItem('lastSaltPercent');
+            
+            if (lastWeight) weightInput.value = lastWeight;
+            if (lastSaltPercent) saltSlider.value = lastSaltPercent;
+            
+            updateCalculations();
+        });
+
+        weightInput.addEventListener('input', updateCalculations);
+        saltSlider.addEventListener('input', updateCalculations);
+
+        weightInput.addEventListener('change', function() {
+            if (this.value < 0) this.value = 0;
+            updateCalculations();
+        });
+    </script>
+</body>
+</html>
