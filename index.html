@@ -1,306 +1,1165 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=1.0, user-scalable=no">
-    <title>Salaison Calculator</title>
-    <meta name="theme-color" content="#000000">
-    <style>
-        :root {
-            --primary-color: #6366F1;
-            --background: #000000;
-            --card-bg: #1A1A1A;
-            --text-primary: #FFFFFF;
-            --text-secondary: #A1A1AA;
-            --accent: #818CF8;
-            --spacing: 16px;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
-        
-        body {
-            background: var(--background);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: var(--spacing);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Suivi Charcuterie</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #1a0f0a;
+  --bg-card: #2a1a12;
+  --bg-card-hover: #3a2419;
+  --surface: #1e1310;
+  --accent: #c2703e;
+  --accent-light: #e8935a;
+  --accent-dark: #8b4c28;
+  --green: #4a8c5c;
+  --green-light: #5daa72;
+  --green-bg: rgba(74,140,92,0.15);
+  --yellow: #c4a23a;
+  --yellow-bg: rgba(196,162,58,0.15);
+  --red: #b85450;
+  --red-bg: rgba(184,84,80,0.12);
+  --text: #f0e6dc;
+  --text-muted: #a89585;
+  --text-dim: #6d5d52;
+  --border: rgba(194,112,62,0.15);
+  --border-strong: rgba(194,112,62,0.3);
+  --radius: 14px;
+  --shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
 
-        .app-container {
-            max-width: 500px;
-            margin: 0 auto;
-            padding-bottom: 20px;
-        }
+* { margin:0; padding:0; box-sizing:border-box; }
 
-        .header {
-            text-align: center;
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 24px;
-            color: var(--primary-color);
-        }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+body::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 50% 0%, rgba(194,112,62,0.08) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
 
-        .section-title {
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+.app { max-width: 520px; margin: 0 auto; padding: 0 12px 100px; position: relative; z-index: 1; }
 
-        .weight-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
+/* Header */
+.header {
+  text-align: center;
+  padding: 28px 0 20px;
+}
+.header h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 1.8rem;
+  background: linear-gradient(135deg, var(--accent-light), var(--accent), var(--accent-dark));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+.header .subtitle {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
 
-        .weight-input {
-            width: 140px;
-            height: 60px;
-            background: transparent;
-            border: 2px solid var(--primary-color);
-            border-radius: 15px;
-            color: var(--text-primary);
-            font-size: 32px;
-            font-weight: 600;
-            text-align: center;
-            padding: 0 10px;
-        }
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 18px;
+  border: 1px solid var(--border);
+}
+.tab {
+  flex: 1;
+  padding: 10px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 500;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.tab.active {
+  background: var(--accent-dark);
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(194,112,62,0.3);
+}
 
-        .weight-input:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
+/* Stats bar */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.stat-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+}
+.stat-box .val {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent-light);
+}
+.stat-box .label {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+.stat-box.green .val { color: var(--green-light); }
+.stat-box.yellow .val { color: var(--yellow); }
 
-        .btn {
-            border: none;
-            color: white;
-            background: var(--primary-color);
-            padding: 8px 16px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.1s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 44px;
-            height: 44px;
-        }
+/* Cards */
+.card-list { display: flex; flex-direction: column; gap: 12px; }
 
-        .btn:active {
-            transform: scale(0.95);
-        }
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  transition: all 0.3s;
+  animation: cardIn 0.4s ease-out both;
+}
+.card:hover { border-color: var(--border-strong); background: var(--bg-card-hover); }
 
-        .unit {
-            color: var(--text-secondary);
-            font-size: 20px;
-            font-weight: 500;
-        }
+@keyframes cardIn {
+  from { opacity:0; transform: translateY(12px); }
+  to { opacity:1; transform: translateY(0); }
+}
 
-        .fine-controls {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-        }
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.card-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.card-badges { display: flex; gap: 6px; align-items: center; }
 
-        .btn-small {
-            font-size: 14px;
-            padding: 6px 12px;
-            height: 36px;
-            background: rgba(99, 102, 241, 0.2);
-            color: var(--primary-color);
-        }
+.badge {
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.badge-salaison { background: var(--yellow-bg); color: var(--yellow); border: 1px solid rgba(196,162,58,0.25); }
+.badge-sechage { background: var(--red-bg); color: var(--accent-light); border: 1px solid rgba(194,112,62,0.25); }
+.badge-pret { background: var(--green-bg); color: var(--green-light); border: 1px solid rgba(74,140,92,0.25); }
+.badge-archive { background: rgba(100,100,100,0.15); color: #888; border: 1px solid rgba(100,100,100,0.2); }
 
-        .salt-slider {
-            width: 100%;
-            margin: 24px 0;
-        }
+.card-meta {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.card-meta span { display:flex; align-items:center; gap:4px; }
 
-        input[type="range"] {
-            width: 100%;
-            height: 4px;
-            background: #333;
-            border-radius: 2px;
-            -webkit-appearance: none;
-        }
+.card-weights {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.82rem;
+  margin-bottom: 8px;
+}
+.weight-change { color: var(--text-muted); }
+.weight-current { color: var(--accent-light); font-weight: 600; }
 
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
-            background: var(--primary-color);
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid var(--background);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
-        }
+/* Progress bar */
+.progress-wrap { position: relative; height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; }
+.progress-bar {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+  position: relative;
+}
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 30px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15));
+  border-radius: 4px;
+}
+.progress-salaison .progress-bar { background: linear-gradient(90deg, var(--yellow), #d4b94a); }
+.progress-sechage .progress-bar { background: linear-gradient(90deg, var(--accent-dark), var(--accent-light)); }
+.progress-pret .progress-bar { background: linear-gradient(90deg, var(--green), var(--green-light)); }
 
-        .salt-value {
-            text-align: center;
-            font-size: 28px;
-            font-weight: 600;
-            margin-top: 12px;
-            color: var(--text-primary);
-        }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
 
-        .result {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            border-radius: 12px;
-            background: rgba(99, 102, 241, 0.1);
-            margin-bottom: 12px;
-        }
+/* Stamp PRÊT */
+.stamp-pret {
+  display: inline-block;
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 0.9rem;
+  color: var(--green-light);
+  border: 3px solid var(--green-light);
+  border-radius: 8px;
+  padding: 2px 12px;
+  transform: rotate(-5deg);
+  opacity: 0.85;
+  letter-spacing: 2px;
+}
 
-        .result:last-child {
-            margin-bottom: 0;
-        }
+/* Card actions */
+.card-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.card-actions button {
+  flex: 1;
+  padding: 7px 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.card-actions button:hover { background: var(--border); color: var(--text); }
+.card-actions button.danger:hover { background: var(--red-bg); color: var(--red); border-color: rgba(184,84,80,0.3); }
 
-        .result-label {
-            color: var(--text-secondary);
-            font-size: 16px;
-        }
+/* Weight log */
+.weight-log { margin-top: 10px; }
+.weight-log-entry {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  padding: 3px 0;
+  border-bottom: 1px solid var(--border);
+}
+.weight-log-entry:last-child { border: none; }
 
-        .result-value {
-            color: var(--text-primary);
-            font-size: 20px;
-            font-weight: 600;
-        }
+/* FAB */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: calc(50% - 248px);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border: none;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(194,112,62,0.5);
+  transition: all 0.3s;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fab:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(194,112,62,0.6); }
+@media (max-width:544px) { .fab { right: 20px; } }
 
-        /* Suppression des flèches du input number */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
-    </style>
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top:0;left:0;right:0;bottom:0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.2s;
+}
+@keyframes fadeIn { from{opacity:0}to{opacity:1} }
+
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: 20px 20px 0 0;
+  padding: 24px 20px 32px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
+  animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp { from{transform:translateY(100%)}to{transform:translateY(0)} }
+
+.modal h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  margin-bottom: 18px;
+  color: var(--accent-light);
+}
+
+.form-group { margin-bottom: 14px; }
+.form-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.form-group input, .form-group select, .form-group textarea {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border 0.2s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  border-color: var(--accent);
+}
+.form-group select { appearance: none; cursor: pointer; }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+.btn-primary {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-secondary {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+/* Empty state */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-dim);
+}
+.empty .icon { font-size: 3rem; margin-bottom: 12px; }
+.empty p { font-size: 0.85rem; }
+
+/* Toggle detail */
+.card-detail { display: none; }
+.card-detail.open { display: block; }
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.filter-btn.active { background: var(--accent-dark); color: var(--text); border-color: var(--accent); }
+
+/* Export/Import */
+.data-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.data-actions button {
+  flex: 1;
+  padding: 9px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.data-actions button:hover { background: var(--border); color: var(--text); }
+
+.hidden { display: none !important; }
+
+/* Calculator */
+.calc-section {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 14px 0;
+}
+.calc-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--accent-light);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.calc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.calc-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  text-align: center;
+}
+.calc-item .calc-label {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+.calc-item .calc-pct {
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+.calc-item .calc-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.calc-item .calc-val span { font-size: 0.8rem; color: var(--text-muted); font-family: 'DM Sans', sans-serif; }
+.calc-item.sel { border-color: rgba(196,162,58,0.3); }
+.calc-item.sel .calc-val { color: var(--yellow); }
+.calc-pct-input {
+  width: 52px;
+  padding: 3px 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--accent-light);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  text-align: center;
+  outline: none;
+}
+.calc-pct-input:focus { border-color: var(--accent); }
+.calc-row-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Types manager */
+.types-list { display:flex; flex-direction:column; gap:4px; max-height:50vh; overflow-y:auto; margin-bottom:12px; }
+.type-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+.type-row button {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+.type-row button:hover { background: var(--red-bg); }
+.add-type-row {
+  display: flex;
+  gap: 6px;
+}
+.add-type-row input {
+  flex: 1;
+  padding: 8px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  outline: none;
+}
+.add-type-row input:focus { border-color: var(--accent); }
+.add-type-row button {
+  padding: 8px 16px;
+  background: var(--accent-dark);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+</style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="header">Calculateur de Salaison</div>
 
-        <div class="card">
-            <div class="section-title">Poids de l'aliment</div>
-            <div class="weight-controls">
-                <button class="btn" onclick="adjustWeight(-100)">-</button>
-                <input type="number" class="weight-input" id="weight" value="0" min="0">
-                <button class="btn" onclick="adjustWeight(100)">+</button>
-                <span class="unit">g</span>
-            </div>
-            <div class="fine-controls">
-                <button class="btn btn-small" onclick="adjustWeight(-10)">-10g</button>
-                <button class="btn btn-small" onclick="adjustWeight(-1)">-1g</button>
-                <button class="btn btn-small" onclick="adjustWeight(1)">+1g</button>
-                <button class="btn btn-small" onclick="adjustWeight(10)">+10g</button>
-            </div>
-        </div>
+<div class="app" id="app">
+  <div class="header">
+    <h1>Suivi Charcuterie</h1>
+    <div class="subtitle">Salaison &amp; Séchage</div>
+  </div>
 
-        <div class="card">
-            <div class="section-title">Sel</div>
-            <div class="salt-slider">
-                <input type="range" id="salt" min="0" max="10" step="0.1" value="4.5">
-            </div>
-            <div class="salt-value" id="salt-percentage">4.5 %</div>
-        </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="encours" onclick="switchTab('encours')">En cours</button>
+    <button class="tab" data-tab="prets" onclick="switchTab('prets')">Prêts</button>
+    <button class="tab" data-tab="archives" onclick="switchTab('archives')">Archives</button>
+  </div>
 
-        <div class="card">
-            <div class="section-title">Résultats</div>
-            <div class="result">
-                <span class="result-label">Sel</span>
-                <span class="result-value" id="salt-result">0 g</span>
-            </div>
-            <div class="result">
-                <span class="result-label">Sucre (2%)</span>
-                <span class="result-value" id="sugar-result">0 g</span>
-            </div>
-            <div class="result">
-                <span class="result-label">Poivre (1%)</span>
-                <span class="result-value" id="pepper-result">0 g</span>
-            </div>
-            <div class="result">
-                <span class="result-label">Épices (0,5%)</span>
-                <span class="result-value" id="spices-result">0 g</span>
-            </div>
+  <div id="stats-bar" class="stats-bar"></div>
+
+  <div class="toolbar" id="toolbar-encours">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Tous</button>
+    <button class="filter-btn" data-filter="salaison" onclick="setFilter('salaison')">Salaison</button>
+    <button class="filter-btn" data-filter="sechage" onclick="setFilter('sechage')">Séchage</button>
+  </div>
+
+  <div class="card-list" id="card-list"></div>
+
+  <div class="data-actions" id="data-actions">
+    <button onclick="exportData()">📤 Exporter JSON</button>
+    <button onclick="document.getElementById('import-file').click()">📥 Importer JSON</button>
+    <input type="file" id="import-file" accept=".json" style="display:none" onchange="importData(event)">
+  </div>
+</div>
+
+<button class="fab" onclick="openAddModal()" title="Ajouter une pièce">+</button>
+
+<div class="modal-overlay hidden" id="modal-overlay" onclick="closeModalOverlay(event)">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+// ===== DATA =====
+const DEFAULT_TYPES = [
+  'Rosette','Saucisson sec','Coppa','Lomo','Pancetta','Bresaola','Lonzo',
+  'Jambon sec','Figatelli','Chorizo','Noix de jambon','Rouelle',
+  'Saucisse sèche','4 Épices','HDP','Autre'
+];
+let TYPES = JSON.parse(localStorage.getItem('charcuterie_types') || 'null') || [...DEFAULT_TYPES];
+function saveTypes() { localStorage.setItem('charcuterie_types', JSON.stringify(TYPES)); }
+
+let items = JSON.parse(localStorage.getItem('charcuterie_items') || '[]');
+let currentTab = 'encours';
+let currentFilter = 'all';
+
+function save() { localStorage.setItem('charcuterie_items', JSON.stringify(items)); }
+
+// ===== HELPERS =====
+function daysBetween(d1, d2) {
+  return Math.floor((new Date(d2) - new Date(d1)) / 86400000);
+}
+function today() { return new Date().toISOString().split('T')[0]; }
+function formatDate(d) {
+  const dt = new Date(d);
+  return dt.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+}
+function pctLoss(initial, current) {
+  if (!initial || !current) return 0;
+  return Math.round((1 - current/initial) * 100);
+}
+
+function getPhaseInfo(item) {
+  const now = new Date();
+  if (item.status === 'pret' || item.status === 'archive') {
+    return { phase: item.status, pct: 100 };
+  }
+  if (item.phase === 'salaison') {
+    const days = daysBetween(item.dateSalaison, today());
+    const target = item.joursSalaison || 14;
+    const pct = Math.min(100, Math.round(days / target * 100));
+    return { phase:'salaison', days, target, pct };
+  }
+  if (item.phase === 'sechage') {
+    const current = item.pesees?.length ? item.pesees[item.pesees.length-1].poids : item.poidsInitial;
+    const targetPoids = item.poidsInitial * (1 - (item.perteCible||40)/100);
+    const lost = item.poidsInitial - current;
+    const toLose = item.poidsInitial - targetPoids;
+    const pct = toLose > 0 ? Math.min(100, Math.round(lost / toLose * 100)) : 0;
+    const days = daysBetween(item.dateSechage || item.dateSalaison, today());
+    return { phase:'sechage', pct, days, current: Math.round(current), target: Math.round(targetPoids) };
+  }
+  return { phase:'unknown', pct:0 };
+}
+
+// ===== RENDER =====
+function render() {
+  renderStats();
+  renderCards();
+}
+
+function renderStats() {
+  const active = items.filter(i => i.status === 'encours');
+  const sal = active.filter(i => i.phase === 'salaison').length;
+  const sec = active.filter(i => i.phase === 'sechage').length;
+  const prets = items.filter(i => i.status === 'pret').length;
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stat-box yellow"><div class="val">${sal}</div><div class="label">Salaison</div></div>
+    <div class="stat-box"><div class="val">${sec}</div><div class="label">Séchage</div></div>
+    <div class="stat-box green"><div class="val">${prets}</div><div class="label">Prêts</div></div>
+  `;
+}
+
+function renderCards() {
+  const list = document.getElementById('card-list');
+  const toolbar = document.getElementById('toolbar-encours');
+
+  let filtered;
+  if (currentTab === 'encours') {
+    filtered = items.filter(i => i.status === 'encours');
+    if (currentFilter !== 'all') filtered = filtered.filter(i => i.phase === currentFilter);
+    toolbar.classList.remove('hidden');
+  } else if (currentTab === 'prets') {
+    filtered = items.filter(i => i.status === 'pret');
+    toolbar.classList.add('hidden');
+  } else {
+    filtered = items.filter(i => i.status === 'archive');
+    toolbar.classList.add('hidden');
+  }
+
+  if (filtered.length === 0) {
+    const msgs = { encours:"Aucune pièce en cours", prets:"Aucune pièce prête", archives:"Aucune archive" };
+    list.innerHTML = `<div class="empty"><div class="icon">🥓</div><p>${msgs[currentTab]}</p></div>`;
+    return;
+  }
+
+  // Sort: salaison first, then by date
+  filtered.sort((a,b) => {
+    if (a.phase !== b.phase) return a.phase === 'salaison' ? -1 : 1;
+    return new Date(a.dateSalaison) - new Date(b.dateSalaison);
+  });
+
+  list.innerHTML = filtered.map((item, idx) => renderCard(item)).join('');
+}
+
+function renderCard(item) {
+  const info = getPhaseInfo(item);
+  const id = item.id;
+  const currentPoids = item.pesees?.length ? item.pesees[item.pesees.length-1].poids : item.poidsInitial;
+  const loss = pctLoss(item.poidsInitial, currentPoids);
+  const daysLabel = info.days !== undefined ? `${info.days} j` : '';
+
+  let badgeClass, badgeText, progressClass;
+  if (item.status === 'pret') { badgeClass='badge-pret'; badgeText='Prêt'; progressClass='progress-pret'; }
+  else if (item.status === 'archive') { badgeClass='badge-archive'; badgeText='Archivé'; progressClass='progress-pret'; }
+  else if (item.phase === 'salaison') { badgeClass='badge-salaison'; badgeText='Salaison'; progressClass='progress-salaison'; }
+  else { badgeClass='badge-sechage'; badgeText='Séchage'; progressClass='progress-sechage'; }
+
+  const startDate = item.phase === 'sechage' && item.dateSechage ? item.dateSechage : item.dateSalaison;
+
+  let stampHTML = '';
+  if (item.status === 'pret') stampHTML = '<div class="stamp-pret">PRÊT</div>';
+
+  let weightLine = '';
+  if (item.phase === 'sechage' || item.status === 'pret' || item.status === 'archive') {
+    const target = Math.round(item.poidsInitial * (1 - (item.perteCible||40)/100));
+    weightLine = `
+      <div class="card-weights">
+        <span class="weight-change">${item.poidsInitial} g → ${target} g (−${item.perteCible||40}%)</span>
+        <span class="weight-current">Actuel : ${Math.round(currentPoids)} g · ${info.pct}%</span>
+      </div>`;
+  }
+
+  let progressLabel = '';
+  if (item.phase === 'salaison') {
+    progressLabel = `<div class="progress-label"><span>Salaison</span><span>${info.pct}%</span></div>`;
+  } else if (item.phase === 'sechage') {
+    progressLabel = `<div class="progress-label"><span>Perte: −${loss}%</span><span>${info.pct}%</span></div>`;
+  }
+
+  // Actions
+  let actions = '';
+  const delBtn = pendingDelete === id
+    ? `<button class="danger" onclick="deleteItem('${id}')" style="background:var(--red-bg);color:var(--red);border-color:rgba(184,84,80,0.4)">⚠️ Confirmer</button>`
+    : `<button class="danger" onclick="deleteItem('${id}')">🗑️</button>`;
+
+  if (item.status === 'encours') {
+    if (item.phase === 'salaison') {
+      actions = `
+        <button onclick="passToSechage('${id}')">🔄 Passer en séchage</button>
+        <button onclick="openEditModal('${id}')">✏️ Modifier</button>
+        ${delBtn}`;
+    } else {
+      actions = `
+        <button onclick="openPeseeModal('${id}')">⚖️ Pesée</button>
+        <button onclick="markPret('${id}')">✅ Prêt</button>
+        <button onclick="openEditModal('${id}')">✏️</button>
+        ${delBtn}`;
+    }
+  } else if (item.status === 'pret') {
+    actions = `
+      <button onclick="archiveItem('${id}')">📦 Archiver</button>
+      <button onclick="openEditModal('${id}')">✏️</button>
+      ${delBtn}`;
+  } else if (item.status === 'archive') {
+    actions = `${delBtn}`;
+  }
+
+  // Weight log
+  let logHTML = '';
+  if (item.pesees && item.pesees.length > 0 && (item.phase === 'sechage' || item.status === 'pret' || item.status === 'archive')) {
+    const last5 = item.pesees.slice(-5).reverse();
+    logHTML = `<div class="weight-log" id="log-${id}">
+      ${last5.map(p => `<div class="weight-log-entry"><span>${formatDate(p.date)}</span><span>${p.poids} g (−${pctLoss(item.poidsInitial, p.poids)}%)</span></div>`).join('')}
+    </div>`;
+  }
+
+  return `
+    <div class="card" style="animation-delay:${Math.random()*0.15}s">
+      <div class="card-header">
+        <div>
+          <div class="card-name">${item.nom}</div>
+          <div class="card-badges"><span class="badge ${badgeClass}">${badgeText}</span></div>
         </div>
+        ${stampHTML}
+      </div>
+      <div class="card-meta">
+        <span>📅 ${formatDate(startDate)}</span>
+        <span>⏱️ ${daysLabel}</span>
+        ${item.diametre ? `<span>⌀ ${item.diametre} cm</span>` : ''}
+        ${item.assaisonnement ? `<span>🧂 ${item.assaisonnement.sel.g}g sel · ${item.assaisonnement.sucre.g}g sucre · ${item.assaisonnement.poivre.g}g poivre · ${item.assaisonnement.epices.g}g épices</span>` : (item.sel ? `<span>🧂 ${item.sel} g/kg</span>` : '')}
+        ${item.notes ? `<span>📝 ${item.notes}</span>` : ''}
+      </div>
+      ${weightLine}
+      <div class="progress-wrap ${progressClass}">
+        <div class="progress-bar" style="width:${info.pct}%"></div>
+      </div>
+      ${progressLabel}
+      ${logHTML}
+      ${actions ? `<div class="card-actions">${actions}</div>` : ''}
+    </div>`;
+}
+
+// ===== TABS & FILTERS =====
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  render();
+}
+function setFilter(f) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+  renderCards();
+}
+
+// ===== ACTIONS =====
+function passToSechage(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.phase = 'sechage';
+  item.dateSechage = today();
+  item.pesees = item.pesees || [];
+  item.pesees.push({ date: today(), poids: item.poidsInitial });
+  save(); render();
+}
+
+function markPret(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.status = 'pret';
+  item.datePret = today();
+  save(); render();
+}
+
+function archiveItem(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.status = 'archive';
+  save(); render();
+}
+
+let pendingDelete = null;
+function deleteItem(id) {
+  if (pendingDelete === id) {
+    items = items.filter(i => i.id !== id);
+    pendingDelete = null;
+    save(); render();
+  } else {
+    pendingDelete = id;
+    render();
+    setTimeout(() => { if (pendingDelete === id) { pendingDelete = null; render(); } }, 3000);
+  }
+}
+
+// ===== MODALS =====
+function openModal(html) {
+  document.getElementById('modal').innerHTML = html;
+  document.getElementById('modal-overlay').classList.remove('hidden');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.add('hidden');
+}
+function closeModalOverlay(e) {
+  if (e.target === e.currentTarget) closeModal();
+}
+
+function openAddModal() {
+  const typeOptions = TYPES.map(t => `<option value="${t}">${t}</option>`).join('');
+  openModal(`
+    <h2>Nouvelle pièce</h2>
+    <div class="form-group">
+      <label>Type <span style="font-weight:400;color:var(--text-dim);cursor:pointer" onclick="openTypesManager()">⚙️ Gérer</span></label>
+      <select id="f-type" onchange="updateNom()">${typeOptions}</select>
+    </div>
+    <div class="form-group">
+      <label>Nom / Numéro</label>
+      <input id="f-nom" value="${TYPES[0] || ''} 1" placeholder="Ex: Rosette 1">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Phase initiale</label>
+        <select id="f-phase">
+          <option value="salaison">Salaison</option>
+          <option value="sechage">Séchage</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date début</label>
+        <input type="date" id="f-date" value="${today()}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Poids viande (g)</label>
+        <input type="number" id="f-poids" placeholder="Ex: 500" oninput="calcAssaisonnement()">
+      </div>
+      <div class="form-group">
+        <label>Diamètre (cm)</label>
+        <input type="number" id="f-diametre" placeholder="Ex: 6" step="0.5" min="1" oninput="calcJoursSalaison()">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Jours salaison <span style="font-weight:400;color:var(--text-dim)">(auto: Ø/2+1)</span></label>
+        <input type="number" id="f-jours" value="" placeholder="—">
+      </div>
+      <div class="form-group">
+        <label>Perte cible séchage (%)</label>
+        <input type="number" id="f-perte" value="40" placeholder="40">
+      </div>
     </div>
 
-    <script>
-        const weightInput = document.getElementById('weight');
-        const saltSlider = document.getElementById('salt');
-        const saltPercentage = document.getElementById('salt-percentage');
-        const saltResult = document.getElementById('salt-result');
-        const sugarResult = document.getElementById('sugar-result');
-        const pepperResult = document.getElementById('pepper-result');
-        const spicesResult = document.getElementById('spices-result');
+    <div class="calc-section">
+      <div class="calc-title">🧂 Calculateur assaisonnement</div>
+      <div class="calc-grid">
+        <div class="calc-item sel">
+          <div class="calc-row-label">
+            <span class="calc-label">Sel</span>
+            <span><input type="number" class="calc-pct-input" id="c-sel-pct" value="4.5" step="0.1" min="0" max="10" oninput="calcAssaisonnement()"> %</span>
+          </div>
+          <div class="calc-val" id="c-sel-val">0 <span>g</span></div>
+        </div>
+        <div class="calc-item">
+          <div class="calc-row-label">
+            <span class="calc-label">Sucre</span>
+            <span><input type="number" class="calc-pct-input" id="c-sucre-pct" value="2" step="0.1" min="0" max="5" oninput="calcAssaisonnement()"> %</span>
+          </div>
+          <div class="calc-val" id="c-sucre-val">0 <span>g</span></div>
+        </div>
+        <div class="calc-item">
+          <div class="calc-row-label">
+            <span class="calc-label">Poivre</span>
+            <span><input type="number" class="calc-pct-input" id="c-poivre-pct" value="1" step="0.1" min="0" max="5" oninput="calcAssaisonnement()"> %</span>
+          </div>
+          <div class="calc-val" id="c-poivre-val">0 <span>g</span></div>
+        </div>
+        <div class="calc-item">
+          <div class="calc-row-label">
+            <span class="calc-label">Épices</span>
+            <span><input type="number" class="calc-pct-input" id="c-epices-pct" value="0.5" step="0.1" min="0" max="5" oninput="calcAssaisonnement()"> %</span>
+          </div>
+          <div class="calc-val" id="c-epices-val">0 <span>g</span></div>
+        </div>
+      </div>
+    </div>
 
-        function adjustWeight(amount) {
-            let currentWeight = parseInt(weightInput.value) || 0;
-            currentWeight = Math.max(0, currentWeight + amount);
-            weightInput.value = currentWeight;
-            updateCalculations();
-            weightInput.blur();
-        }
+    <div class="form-group">
+      <label>Notes</label>
+      <textarea id="f-notes" rows="2" placeholder="Épices utilisées, recette..."></textarea>
+    </div>
+    <button class="btn-primary" onclick="addItem()">Ajouter</button>
+    <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+  `);
+}
 
-        function updateCalculations() {
-            const weight = parseFloat(weightInput.value) || 0;
-            const saltPercent = parseFloat(saltSlider.value);
+function updateNom() {
+  const type = document.getElementById('f-type').value;
+  const existing = items.filter(i => i.type === type).length;
+  document.getElementById('f-nom').value = `${type} ${existing + 1}`;
+}
 
-            saltPercentage.textContent = `${saltPercent} %`;
+function calcAssaisonnement() {
+  const poids = parseFloat(document.getElementById('f-poids')?.value) || 0;
+  const ids = ['sel','sucre','poivre','epices'];
+  ids.forEach(id => {
+    const pct = parseFloat(document.getElementById(`c-${id}-pct`)?.value) || 0;
+    const val = Math.round(poids * pct / 100 * 10) / 10;
+    const el = document.getElementById(`c-${id}-val`);
+    if (el) el.innerHTML = `${val} <span>g</span>`;
+  });
+}
 
-            // Calcul des quantités
-            const saltQuantity = (weight * saltPercent / 100).toFixed(1);
-            const sugarQuantity = (weight * 0.02).toFixed(1);
-            const pepperQuantity = (weight * 0.01).toFixed(1);
-            const spicesQuantity = (weight * 0.005).toFixed(1);
+function calcJoursSalaison() {
+  const diam = parseFloat(document.getElementById('f-diametre')?.value) || 0;
+  if (diam > 0) {
+    const jours = Math.round((diam / 2 + 1) * 10) / 10;
+    document.getElementById('f-jours').value = jours;
+  }
+}
 
-            saltResult.textContent = `${saltQuantity} g`;
-            sugarResult.textContent = `${sugarQuantity} g`;
-            pepperResult.textContent = `${pepperQuantity} g`;
-            spicesResult.textContent = `${spicesQuantity} g`;
+function openTypesManager() {
+  const listHTML = TYPES.map((t, i) => `
+    <div class="type-row">
+      <span>${t}</span>
+      <button onclick="removeType(${i})" title="Supprimer">✕</button>
+    </div>`).join('');
+  document.getElementById('modal').innerHTML = `
+    <h2>Gérer les types</h2>
+    <div class="types-list" id="types-list">${listHTML}</div>
+    <div class="add-type-row">
+      <input id="new-type" placeholder="Nouveau type..." onkeydown="if(event.key==='Enter')addType()">
+      <button onclick="addType()">+ Ajouter</button>
+    </div>
+    <button class="btn-secondary" style="margin-top:12px" onclick="openAddModal()">← Retour</button>
+  `;
+}
 
-            localStorage.setItem('lastWeight', weight);
-            localStorage.setItem('lastSaltPercent', saltPercent);
-        }
+function addType() {
+  const input = document.getElementById('new-type');
+  const name = input.value.trim();
+  if (!name) return;
+  if (TYPES.includes(name)) { input.value=''; return; }
+  TYPES.push(name);
+  saveTypes();
+  openTypesManager();
+}
 
-        // Charger les dernières valeurs
-        window.addEventListener('load', () => {
-            const lastWeight = localStorage.getItem('lastWeight');
-            const lastSaltPercent = localStorage.getItem('lastSaltPercent');
-            
-            if (lastWeight) weightInput.value = lastWeight;
-            if (lastSaltPercent) saltSlider.value = lastSaltPercent;
-            
-            updateCalculations();
+function removeType(idx) {
+  TYPES.splice(idx, 1);
+  saveTypes();
+  openTypesManager();
+}
+
+function addItem() {
+  const poids = parseFloat(document.getElementById('f-poids').value) || 0;
+  const diametre = parseFloat(document.getElementById('f-diametre')?.value) || null;
+  // Gather seasoning percentages
+  const selPct = parseFloat(document.getElementById('c-sel-pct')?.value) || 0;
+  const sucrePct = parseFloat(document.getElementById('c-sucre-pct')?.value) || 0;
+  const poivrePct = parseFloat(document.getElementById('c-poivre-pct')?.value) || 0;
+  const epicesPct = parseFloat(document.getElementById('c-epices-pct')?.value) || 0;
+
+  const assaisonnement = {
+    sel: { pct: selPct, g: Math.round(poids * selPct / 100 * 10) / 10 },
+    sucre: { pct: sucrePct, g: Math.round(poids * sucrePct / 100 * 10) / 10 },
+    poivre: { pct: poivrePct, g: Math.round(poids * poivrePct / 100 * 10) / 10 },
+    epices: { pct: epicesPct, g: Math.round(poids * epicesPct / 100 * 10) / 10 },
+  };
+
+  const item = {
+    id: Date.now().toString(36) + Math.random().toString(36).substr(2,4),
+    type: document.getElementById('f-type').value,
+    nom: document.getElementById('f-nom').value || 'Sans nom',
+    phase: document.getElementById('f-phase').value,
+    status: 'encours',
+    dateSalaison: document.getElementById('f-date').value || today(),
+    dateSechage: document.getElementById('f-phase').value === 'sechage' ? (document.getElementById('f-date').value || today()) : null,
+    poidsInitial: poids,
+    diametre,
+    joursSalaison: parseInt(document.getElementById('f-jours').value) || 14,
+    perteCible: parseInt(document.getElementById('f-perte').value) || 40,
+    sel: assaisonnement.sel.g,
+    assaisonnement,
+    notes: document.getElementById('f-notes').value || '',
+    pesees: [],
+  };
+  if (item.phase === 'sechage' && item.poidsInitial) {
+    item.pesees.push({ date: item.dateSechage, poids: item.poidsInitial });
+  }
+  items.push(item);
+  save(); closeModal(); render();
+}
+
+function openEditModal(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  openModal(`
+    <h2>Modifier</h2>
+    <div class="form-group"><label>Nom</label><input id="e-nom" value="${item.nom}"></div>
+    <div class="form-row">
+      <div class="form-group"><label>Poids initial (g)</label><input type="number" id="e-poids" value="${item.poidsInitial}"></div>
+      <div class="form-group"><label>Diamètre (cm)</label><input type="number" id="e-diametre" value="${item.diametre||''}" step="0.5"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Jours salaison</label><input type="number" id="e-jours" value="${item.joursSalaison||14}"></div>
+      <div class="form-group"><label>Perte cible (%)</label><input type="number" id="e-perte" value="${item.perteCible||40}"></div>
+    </div>
+    <div class="form-group"><label>Notes</label><textarea id="e-notes" rows="2">${item.notes||''}</textarea></div>
+    <button class="btn-primary" onclick="saveEdit('${id}')">Enregistrer</button>
+    <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+  `);
+}
+
+function saveEdit(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  item.nom = document.getElementById('e-nom').value;
+  item.poidsInitial = parseFloat(document.getElementById('e-poids').value) || item.poidsInitial;
+  item.diametre = parseFloat(document.getElementById('e-diametre').value) || null;
+  item.perteCible = parseInt(document.getElementById('e-perte').value) || 40;
+  item.joursSalaison = parseInt(document.getElementById('e-jours').value) || 14;
+  item.notes = document.getElementById('e-notes').value;
+  save(); closeModal(); render();
+}
+
+function openPeseeModal(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  const last = item.pesees?.length ? item.pesees[item.pesees.length-1].poids : item.poidsInitial;
+  openModal(`
+    <h2>⚖️ Nouvelle pesée</h2>
+    <p style="color:var(--text-muted);font-size:0.85rem;margin-bottom:14px">${item.nom} — dernière pesée : ${Math.round(last)} g</p>
+    <div class="form-row">
+      <div class="form-group"><label>Poids (g)</label><input type="number" id="p-poids" placeholder="${Math.round(last)}" autofocus></div>
+      <div class="form-group"><label>Date</label><input type="date" id="p-date" value="${today()}"></div>
+    </div>
+    <button class="btn-primary" onclick="addPesee('${id}')">Enregistrer</button>
+    <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+  `);
+}
+
+function addPesee(id) {
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+  const poids = parseFloat(document.getElementById('p-poids').value);
+  if (!poids || poids <= 0) return;
+  item.pesees = item.pesees || [];
+  item.pesees.push({ date: document.getElementById('p-date').value || today(), poids });
+
+  // Auto-detect if target reached — ask confirmation before marking prêt
+    const target = item.poidsInitial * (1 - (item.perteCible||40)/100);
+    if (poids <= target) {
+      save(); closeModal();
+      const loss = pctLoss(item.poidsInitial, poids);
+      openModal(`
+        <h2>🎉 Cible atteinte !</h2>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:18px">
+          <strong style="color:var(--green-light)">${item.nom}</strong> a perdu <strong style="color:var(--accent-light)">${loss}%</strong> de son poids initial.<br>
+          Poids actuel : <strong>${Math.round(poids)} g</strong> — cible : <strong>${Math.round(target)} g</strong>.
+        </p>
+        <p style="color:var(--text-dim);font-size:0.82rem;margin-bottom:20px">Voulez-vous passer cette pièce en <strong style="color:var(--green-light)">Prêt</strong> ?</p>
+        <button class="btn-primary" style="background:linear-gradient(135deg,var(--green),var(--green-light))" onclick="markPret('${id}');closeModal()">✅ Oui, marquer Prêt</button>
+        <button class="btn-secondary" onclick="closeModal();render()">⏳ Non, continuer le séchage</button>
+      `);
+      return;
+    }
+  save(); closeModal(); render();
+}
+
+// ===== EXPORT / IMPORT =====
+function exportData() {
+  const blob = new Blob([JSON.stringify(items, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `charcuterie_${today()}.json`;
+  a.click();
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!Array.isArray(data)) throw new Error('Format invalide');
+        const existingIds = new Set(items.map(i => i.id));
+        let added = 0;
+        data.forEach(d => {
+          if (!existingIds.has(d.id)) { items.push(d); added++; }
         });
+        save(); render();
+    } catch(err) { alert('Erreur de lecture: ' + err.message); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
 
-        weightInput.addEventListener('input', updateCalculations);
-        saltSlider.addEventListener('input', updateCalculations);
-
-        weightInput.addEventListener('change', function() {
-            if (this.value < 0) this.value = 0;
-            updateCalculations();
-        });
-    </script>
+// ===== INIT =====
+render();
+</script>
 </body>
 </html>
